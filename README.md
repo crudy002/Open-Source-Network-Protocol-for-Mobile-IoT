@@ -7,6 +7,8 @@ Welcome to the repository for our research project aimed at developing an open-s
 - [About](#about)
 - [Project Overview](#project-overview)
 - [Key Features](#key-features)
+- [Materials](#materials)
+- [Example Code](#example-code)
 - [Architecture](#architecture)
 - [Getting Started](#getting-started)
 - [Usage](#usage)
@@ -31,6 +33,21 @@ Our research project centers around the following objectives:
 - **Remote Control**: Users can send commands to control the robot and access sensor data remotely.
 - **Real-Time Camera Streaming**: Multiple users can simultaneously access the robot's camera feed over the Internet.
 - **Open Source**: The project is open source, allowing for contributions and customization.
+
+- ## Materials
+
+To replicate this project, you will need the following materials:
+
+- [Raspberry Pi Car Kit](https://www.amazon.com/SunFounder-Raspberry-Graphical-Programming-Electronic/dp/B06XWSVLL8/ref=sr_1_10?hvadid=557458856046&hvdev=c&hvlocphy=9008533&hvnetw=g&hvqmt=e&hvrand=18160414894892081649&hvtargid=kwd-151905203777&hydadcr=18031_13447380&keywords=raspberry%2Bpi%2Bcar%2Bkit&qid=1694825605&sr=8-10&th=1)
+
+This Raspberry Pi Car Kit will serve as the foundation for your mobile IoT device and robot project. It includes essential components for building and customizing your hardware platform.
+
+## Example Code
+
+You can find example Python source code and resources for the SunFounder PiCar-V in the [SunFounder_PiCar-V GitHub repository](https://github.com/sunfounder/SunFounder_PiCar-V). This repository contains code and documentation to help you get started with your Raspberry Pi car project.
+
+Feel free to explore the repository for code samples, tutorials, and additional resources to enhance your project.
+
 
 ## Architecture
 
