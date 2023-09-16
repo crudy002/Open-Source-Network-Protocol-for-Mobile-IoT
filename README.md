@@ -1,8 +1,7 @@
 # Open-Source-Network-Protocol-for-Mobile-IoT
 Open Source Network Protocol for IoT
-# Mobile IoT Network Protocol
 
-Welcome to the repository for my undergraduate research project on building an open-source network protocol for mobile IoT devices. This project aimed to develop a custom network protocol for communication between mobile IoT devices using a Raspberry Pi car kit. The project implements a publisher-subscriber architecture and defines various network message types for commands, errors, information, and more.
+Welcome to the repository for our research project aimed at developing an open-source network protocol for controlling, accessing, and managing robots and a collection of Internet of Things (IoT) devices deployed on a mobile platform. This protocol not only facilitates communication between a robot equipped with various IoT sensors and a controller but also allows multiple users anywhere on the Internet to access the onboard camera. With the availability of this open-source protocol, individuals and hobbyists will have the means to construct, deploy, and control robots equipped with sensors and tools, akin to those used in law enforcement, firefighting, and military applications, for tasks that are too dangerous for humans.
 
 ## Table of Contents
 - [About](#about)
@@ -16,40 +15,58 @@ Welcome to the repository for my undergraduate research project on building an o
 
 ## About
 
-In this section, provide an introduction to your research project. Explain the motivation behind the project, the problem you aimed to solve, and the context of the work within the field of IoT and network protocols. Share a bit about your background and your role in the project.
+Our research project addresses the development of an open-source network protocol to empower the control, access, and management of mobile IoT devices and robots. We aim to provide a solution that facilitates remote operation, access to sensory data, and real-time camera streaming. This project was undertaken as an effort to democratize the deployment of robots and IoT devices for various applications, including scenarios where human involvement is too risky.
 
 ## Project Overview
 
-Describe the project in detail. Provide an overview of the Raspberry Pi car kit and how you customized it for your project. Explain the significance of developing a custom network protocol for mobile IoT devices and any challenges you faced during the project.
+Our research project centers around the following objectives:
+- **Protocol Development**: We have developed a custom network protocol tailored for mobile IoT devices and robot communication.
+- **Remote Control**: Our protocol allows users to remotely control the robot, access sensor data, and operate onboard tools.
+- **Camera Streaming**: Users from anywhere on the Internet can view the robot's onboard camera in real-time.
+- **Open Source**: The protocol is open source, enabling individuals, hobbyists, and developers to build, customize, and enhance their mobile IoT devices and robots.
 
 ## Key Features
 
-Highlight the key features of your custom network protocol. What sets it apart from existing protocols? List and briefly explain the features that make your protocol unique and valuable.
+- **Custom Network Protocol**: Our protocol is designed specifically for mobile IoT devices, ensuring efficient communication.
+- **Remote Control**: Users can send commands to control the robot and access sensor data remotely.
+- **Real-Time Camera Streaming**: Multiple users can simultaneously access the robot's camera feed over the Internet.
+- **Open Source**: The project is open source, allowing for contributions and customization.
 
 ## Architecture
 
-Explain the architecture of your project, focusing on the publisher-subscriber model and how it facilitates communication between mobile IoT devices. Include any relevant diagrams, flowcharts, or system architecture images to help readers understand the design.
+Our architecture employs a publisher-subscriber model, where the robot acts as a publisher of sensor data and camera streams, while the controller and remote users act as subscribers. This architecture ensures real-time communication and access to sensory information.
+
+<img width="1082" alt="image" src="https://github.com/crudy002/Open-Source-Network-Protocol-for-Mobile-IoT/assets/80554884/1a63a585-8c5b-4401-b1b2-6fb8073aa1d1">
 
 ## Getting Started
 
-Provide instructions for getting started with your project. This could include setting up the Raspberry Pi car kit, installing any required software, and configuring the network protocol. Offer a step-by-step guide for users who want to replicate your work.
+To get started with our open-source network protocol and deploy it on your mobile IoT devices or robots, follow these steps:
+
+1. Clone this repository: `git clone https://github.com/your-username/your-repo.git`
+2. Navigate to the project directory: `cd your-repo`
 
 ## Usage
 
-Explain how to use your custom network protocol with practical examples. Provide code snippets or command-line instructions to demonstrate how to send and receive messages between IoT devices using your protocol.
+Once the protocol is installed and configured, you can begin using it to control your robots and access sensor data. 
+<img width="1311" alt="image" src="https://github.com/crudy002/Open-Source-Network-Protocol-for-Mobile-IoT/assets/80554884/395876e3-4b44-4611-af5e-7c8a50c1c6e4">
+<img width="486" alt="image" src="https://github.com/crudy002/Open-Source-Network-Protocol-for-Mobile-IoT/assets/80554884/ff916797-a19c-40a1-93f6-55973c9f9b04">
+
 
 ## Contributing
 
-Encourage others to contribute to your project. Explain how users can get involved, submit bug reports, suggest enhancements, or contribute code. Provide guidelines for coding standards and pull request submission.
+We welcome contributions from the open-source community to enhance and expand this project. To contribute, follow these steps:
+
+1. Fork the repository and create a new branch for your contribution.
+2. Make your changes and submit a pull request.
 
 ## License
 
-Specify the license under which your project is distributed. Consider using an open-source license that aligns with your project's goals and encourages collaboration.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-Example:
+By contributing to this project, you agree to abide by the terms of this license.
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+We look forward to collaborating with you on this exciting journey of making mobile IoT devices and robot control accessible to all!
 
-Feel free to customize this template to best reflect your project's unique aspects and your research findings. Providing a well-structured README will help others understand and appreciate the work you've done in your undergraduate research project.
+Feel free to customize this README to include specific details, links, or images relevant to your project. A comprehensive README will help others understand your project's goals, features, and how to get started.
 
 
