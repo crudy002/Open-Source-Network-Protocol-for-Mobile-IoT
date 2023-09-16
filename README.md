@@ -34,7 +34,7 @@ Our research project centers around the following objectives:
 - **Real-Time Camera Streaming**: Multiple users can simultaneously access the robot's camera feed over the Internet.
 - **Open Source**: The project is open source, allowing for contributions and customization.
 
-- ## Materials
+## Materials
 
 To replicate this project, you will need the following materials:
 
