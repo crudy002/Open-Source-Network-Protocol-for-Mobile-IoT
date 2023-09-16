@@ -1,0 +1,225 @@
+# robot_module.py
+
+from client_module import Client
+from protomod2_0 import *
+from pir_module import PIR
+from ultra_module import ULTRA
+from multiprocessing import Pipe
+
+	# Import pertinent modules.
+import RPi.GPIO as GPIO
+import motor
+import car_dir
+import video_dir
+
+
+# ---------------------------------- Robot ----------------------------------
+	
+class Robot(Client) :
+	
+	def __init__(self, hostname, portnum) :
+		
+		super().__init__()
+		self._carActions = self._defineCarActions()
+		self._camActions = self._defineCamActions()
+		self._motionActs = self._defineMotionActs() 
+		self._ultraActs  = self._defineUltraActs()
+		
+		self._carDevices = None
+		self._pir = None
+		self._pipe = None
+
+		self._ultra = None
+		
+		
+		self._defaultspeed = 50 
+		self._speed = 50 
+		
+		self.setup(hostname, portnum)
+		
+		
+		
+	def run(self) :
+		 
+		super().communications([self._socket, self._pipe]) 
+			
+		
+	def setup(self, host, port) :
+		busnum = 1
+		video_dir.setup(busnum=busnum) 
+		car_dir.setup(busnum=busnum)
+		motor.setup(busnum=busnum)  
+		video_dir.home_x_y() 
+		car_dir.home() 
+		motor.setSpeed(self._speed)	
+		
+		self._carDevices = ['car', 'cam', 'motion', 'ultra']
+		
+		self._pipe, child_conn = Pipe()
+		self._pir = PIR(child_conn)
+		
+		self._ultra = ULTRA()
+		
+		super().setup((host, port)) 
+		self.sendInit()
+		
+		
+	def sendInit(self) :
+		self._packet = InitRobo(self._carDevices)
+		super().sendPacket() 
+	
+	def _defineCarActions(self) :
+		commands = {
+			'go': motor.forward, 
+			'back': motor.backward,
+			'left': car_dir.turn_left,
+			'right': car_dir.turn_right,
+			'stop': motor.stop,
+			'home': car_dir.home,
+			'inc' : self.speedUp,
+			'dec' : self.speedDown,
+			'speed_reset' : self.resetSpeed,
+			'get' : self.carGet,
+			'speed_set' : self.speedSet
+			}
+		return commands
+	
+	def resetSpeed(self) :
+		self._speed = self._defaultspeed
+		
+	def speedUp(self) :
+		if self._speed <= 95 :
+			self._speed  += 5
+			motor.setSpeed(self._speed)
+			print("speed =", self._speed)
+		else :
+			print("MAX speed reached")
+			super().sendError(553) 
+
+	def speedDown(self) :
+		if self._speed >= 20 :
+			self._speed -= 5
+			motor.setSpeed(self._speed) 
+			print("speed =", self._speed) 
+		else :
+			print("MIN speed reached") 
+			super().sendError(552)
+
+	def carGet(self) :
+		self.sendStatus('car', {'speed': self._speed, 'devices': self._carDevices})
+
+	def speedSet(self, speed) :
+		speed = int(speed) 
+		if speed >= 20 and speed <= 100 :
+			self._speed = speed
+			motor.setSpeed = speed
+		else :
+			super().sendError(551) 
+	
+	def _defineCamActions(self) :
+		commands = {
+			'horz_left': video_dir.move_increase_x,
+			'horz_right': video_dir.move_decrease_x,
+			'vert_up': video_dir.move_increase_y,
+			'vert_down': video_dir.move_decrease_x,
+			'home': video_dir.home_x_y 
+			}
+		return commands
+
+	def _defineMotionActs(self) :
+		commands = {
+			'arm' :	self.arm,
+			'disarm' : self.disarm,
+			'get' : self.getPIRState 
+			}
+		return commands
+
+	def arm(self) :
+		self._pir.arm()
+
+	def disarm(self) :
+		self._pir.disarm()
+
+	def getPIRState(self) :
+		armed, alarmed = self._pir.getState()  
+		self.sendStatus('motion', {'Armed': armed, 'Alarmed':alarmed})
+		
+	def _defineUltraActs(self) :
+		commands = {
+			'get' : self.getUltraState 
+			}
+		return commands
+		
+	def getUltraState(self) :
+		dis = self._ultra.getDistance() 
+		print(dis) 
+		self.sendStatus('ultra', {'distance': dis})
+	
+
+		
+	    # Call the function indicated by a given input      
+	def recvCmnd(self) :
+		
+		thing = self._packet.findvalue('thing')
+		action = self._packet.findvalue('action')
+		print(thing, action) 
+		if thing == 'car' :
+
+			if action in self._carActions :
+				fnc = self._carActions[action]
+				if fnc == self.speedSet :
+					param = self._packet.findvalue('param') 
+					fnc(param) 
+				else :
+					fnc()
+			else :
+				print("\nUnkown action recieved...\n")
+				super().sendError(504)	
+
+		elif thing == 'cam' :
+
+			if action in self._camActions :
+				fnc = self._carActions[action]
+				fnc()
+			else :
+				print("\nUnkown action recieved...\n")
+				super().sendError(504)
+				
+		elif thing == 'motion' :
+			if action in self._motionActs : 
+				fnc = self._motionActs[action]
+				fnc()
+			else :
+				print("\nUnkown action recieved... \n") 
+				super().sendError(504)
+				
+		elif thing == 'ultra' :
+			if action in self._ultraActs : 
+				fnc = self._ultraActs[action]
+				fnc()
+			else :
+				print("\nUnkown action recieved... \n") 
+				super().sendError(504)
+
+		else :
+			print("\nUnkown thing sending command...\n") 		
+		
+		
+	def sendStatus(self, devicename, statelist) :
+		packet = RespPack(200, "Qry_Resp", devicename, statelist)						
+		rawdata = packet.makeJSON() 				
+		crypticdata = rawdata.encode() 
+		self._socket.send(crypticdata) 
+		print("Status sent")  
+		
+		
+	def sendAlert(self, devicename, statelist) :
+		packet = AlertPack(devicename, statelist) 
+		rawdata = packet.makeJSON() 
+		crypticdata = rawdata.encode()
+		self._socket.send(crypticdata) 
+		print("Alert sent") 
+		
+	
+		
+		

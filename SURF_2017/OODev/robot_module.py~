@@ -1,0 +1,71 @@
+# robot_module.py
+
+from client_module import Client
+
+	# Import pertinent modules.
+import RPi.GPIO as GPIO
+import motor
+import car_dir
+import video_dir
+
+
+# ---------------------------------- Robot ----------------------------------
+	
+class Robot(Client) :
+	
+	def __init__(self, hostname, portnum) :
+		super().__init__() 
+		self.setup(hostname, portnum)
+		self._carActions = None
+		self._camActions = None
+		self._carDevices = None
+		
+		
+	def run(self) :
+		 
+		super().communications([self._socket]) 
+			
+		
+	def setup(self, host, port) :
+		busnum = 1
+		video_dir.setup(busnum=busnum) 
+		car_dir.setup(busnum=busnum)
+		motor.setup(busnum=busnum)     
+		video_dir.home_x_y()
+		car_dir.home()
+		motor.setSpeed(25)		
+		self._carActions = self._defineCarActions()		
+		self._camActions = self._defineCamActions()
+		self._carDevices = ['car', 'cam']
+		super().setup((host, port)) 
+		self.sendinit()
+		
+		
+	def sendinit(self) :
+		self._packet = InitRobo(self._carDevices)
+		super().sendpacket() 
+	
+	def _defineCarActions(self) :
+		commands = {
+			'go': motor.forward, 
+			'back': motor.backward,
+			'left': car_dir.turn_left,
+			'right': car_dir.turn_right,
+			'stop': motor.stop,
+			'home': car_dir.home
+			}
+		return commands
+	
+	def _defineCamActions(self) :
+		commands = {
+			'horz_left': video_dir.move_increase_x,
+			'horz_right': video_dir.move_decrease_x,
+			'vert_up': video_dir.move_increase_y,
+			'vert_down': video_dir.move_decrease_x,
+			'home': video_dir.home_x_y 
+			}
+		return commands
+		
+	
+		
+		

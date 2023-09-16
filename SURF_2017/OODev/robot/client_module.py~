@@ -1,0 +1,221 @@
+# -----------------------------------------------------------------------------
+# client_module.py
+# 
+# Created by: Christopher Ruediger
+# Date: 06.27.17
+# Project: SURF 2017
+# 
+# This module will contain multiple classes to support client objects within
+# our system. There will be a main client class that won't be called directly,
+# but rather used to inherit functionality. This will decrease redundant code 
+# and provide a better structured Object-Oriented system.
+# -----------------------------------------------------------------------------
+
+import socket
+import select 
+import sys
+from protomod2_0 import *
+
+
+
+# Global Constants
+MAX2RECV = 1024
+
+	# Super client class
+class Client :
+	
+		# Initialization for super class
+	def __init__(self) :
+		
+			# This is the network socket attribute
+		self._socket = None 
+			# This is the network packet attribute 
+		self._packet = None
+		
+		# General setup method that will create client socket
+		# accepting serverAddrr : a TUPLE - (hostnumber, portnumner) 
+	def setup(self, serverAddr) :
+		
+			# Create a new socket
+		newSocket = socket.socket()				
+		
+			# Try to connect it to the server
+			# ??????
+		fail = newSocket.connect_ex(serverAddr)	
+		
+			# If connection wasn't succesful print error
+		if fail :
+			print("Socket couldn't connect to %s @ port %d" % \
+				(serverAddr[0], serverAddr[1]))
+			exit()
+			
+			# Set the attribute socket to the newly defined/connected socket
+		self._socket = newSocket 
+		
+		# 
+	def sendPacket(self) :
+		
+			# Assert that a socket has been established
+		assert self._socket is not None, "Socket setup failure"
+		
+			# Create JSON string with packet
+		rawdata = self._packet.makeJSON()
+		
+			# Encode plain text JSON string
+		crypticdata = rawdata.encode()		
+			
+			# Send encrypted JSON string to server
+		self._socket.send(crypticdata) 		
+		
+		
+	def communications(self, inputs) :
+		
+		try: 
+		
+			while True :
+				readable, w, e = select.select(inputs, [], []) 
+			
+				for curSocket in readable :
+				
+					if curSocket == self._socket :
+						data = self.processData() 
+					
+					elif curSocket == sys.stdin :
+						userin = input() 
+						self.processCmnd(userin) 
+						
+						
+		except KeyboardInterrupt:
+			
+			self.cleanExit() 
+			
+			
+			
+		
+	def processData(self) :
+		print("*******************")
+		
+			# Recieve all data from given socket
+		rawData = self._socket.recv(MAX2RECV)	
+		
+			# Decode the encrypted data
+		data = rawData.decode() 		
+		
+		if data :
+			self._packet.setJSON(data) 
+			self.processPacket()
+			
+		else :
+			print("Server closed socket...") 
+			self.cleanExit()
+			
+			
+		# Execute the packet recieved based off of its purpose,
+		# Indicated by data field type
+	def processPacket(self) :
+		comm_type = self._packet.findvalue('type') 
+		
+		if comm_type == 'cmnd' :
+			
+			self.recvCmnd()
+			
+		elif comm_type == 'resp' :
+			
+				# Get the code that came along with the packet
+			code = self._packet.findvalue('code') 
+			self.recvResp(code) 
+			
+		else :
+			self.sendError(501)
+			print("TYPE not yet supported.") 
+			
+		
+	
+	def recvResp(self, code) :
+			# Interperet the code
+		if code == 100 :
+			print("Success:", code) 
+		else :
+			print("Error:", code) 
+		
+		
+	def cleanExit(self) :
+		print("Connection closing...")
+			# Close the communication socket
+		self._socket.close() 
+		print("Goodbye") 
+			# Exit the program
+		exit()
+		
+		
+		
+	def run(self) :  
+		
+		self.communications([self._socket, sys.stdin]) 
+			
+		
+		
+	def processCmnd(self, string) :
+		print("Cannot send commands") 
+		
+		
+	def recvCmnd(self) :
+		pass
+	
+	# Other ---------------------------------------------------------------
+		
+		# Send an OK packet with code 100
+	def sendOK(self) :
+		packet = RespPack(100) 
+		rawdata = packet.makeJSON() 				
+		crypticdata = rawdata.encode() 			
+		self._curClient.send(crypticdata) 				
+		print("OK response sent") 					# Possibly make these 1
+		
+		# Send an ERROR packet with code specified											
+	def sendError(self, code) :					
+		packet = RespPack(code)						
+		rawdata = packet.makeJSON() 				
+		crypticdata = rawdata.encode() 
+		self._socket.send(crypticdata) 
+		print("Error code:", code, "sent") 
+		
+		
+# -------------------------- Controllers and Views --------------------------
+	
+class View(Client) :
+	
+	def __init__(self, hostname, portnum, which = 'view') :
+		super().__init__() 
+		self.setup(hostname, portnum, which)
+			
+	def setup(self, host, port, which) :
+		super().setup((host, port)) 
+		self.sendInit(which)
+			
+	def sendInit(self, which) :
+		self._packet = InitClient(which)
+		super().sendPacket() 
+		 
+	
+class Controller(View) :
+	
+	def __init__(self, hostname, portnum) :
+		super().__init__(hostname, portnum, 'ctrl')
+		 
+	def processCmnd(self, string) :
+		self._packet = CmndPack('car', string)
+		super().sendPacket()
+		
+
+	
+	
+
+		
+		
+		
+	
+		
+		
+
+		

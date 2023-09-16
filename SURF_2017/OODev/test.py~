@@ -1,0 +1,13 @@
+# test.py
+
+
+from client_module import *
+
+fail = Controller('', 30000) 
+
+if fail :
+	fail.run() 
+	
+print(1)
+	
+	

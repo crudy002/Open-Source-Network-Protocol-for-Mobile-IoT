@@ -1,0 +1,108 @@
+# -----------------------------------------------------------------------------
+# client_01.py
+# 
+# Created by: Christopher Ruediger
+# Date: 06.16.17
+# Project: SURF 2017
+# 
+# This is the first version of the CLIENT that will be implemeneted on our 
+# system. This client will have the following reponsibilities:
+# *** Using socket programming
+# - Connect to the system server (V1)
+# - Accepting commands from the server via socket
+# - Display what is being sent accross
+# -----------------------------------------------------------------------------
+
+	# Needed modules
+import socket
+import sys
+import select
+from protomod2_0 import InitClient # , CtrlPack, RespPack
+
+	# Gloabal variables
+MAX2RECV = 1024
+host = ''
+port = 30001
+server_addr = (host, port) 
+packet = None
+
+
+def main() :
+	
+	client_socket = estClient()
+	server_socket = connectToServer(client_socket) 
+	try : 
+		communications(server_socket) 
+		
+	except KeyboardInterrupt :
+		cleanExit(server_socket) 
+	
+	
+		
+	
+	# Establish the client socket and return it.
+def estClient() :
+	print("Creating client...") 
+	newSocket = socket.socket()		# Create a new socket for the client
+	return newSocket
+	
+	# Connect client to the server via the servers address
+def connectToServer(client) :
+	print("Connecting to server...")
+	client.connect(server_addr) 	# Connect to the server 
+	return client
+	
+def communications(theSocket) :
+	sendinit(theSocket)
+	
+	inputs = [theSocket, sys.stdin]		# Listen to the conn and stdin
+	
+
+	while True :
+		
+		readable, w, e = select.select(inputs, [], [])	# Readable - arrivalls
+		
+		for curSocket in readable : 
+	
+			if curSocket == theSocket :
+				data = recvData(theSocket) 
+				print(packet)
+				if data: 
+					packet.setJSON(data) 
+					print(packet)
+				else :
+					print("Server closed me") 
+					cleanExit(theSocket) 
+			
+			
+		
+	# Decode data recieved from "socket" and return it
+def recvData(socket) :
+	print("*******************")
+	print("Waiting...") 
+	rawData = socket.recv(MAX2RECV)	# Recieve all data from given socket
+	data = rawData.decode() 		# Decode the encrypted data
+	return data
+	
+def cleanExit(server) :
+	print("Connection closing...")
+	server.close() 
+	print("Goodbye") 
+	exit()
+	
+def sendinit(server) :
+	global packet
+	
+	packet = InitClient('ctrl')
+	rawdata = packet.makeJSON()  
+	crypticdata = rawdata.encode()		# Encode plain text data
+	server.send(crypticdata) 		# Send encrypted data
+	print("Data Sent.") 
+	
+	
+	
+	
+main()
+	
+	
+	
